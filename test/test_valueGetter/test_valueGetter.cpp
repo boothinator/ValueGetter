@@ -35,14 +35,22 @@ void tearDown(void) {
 // clean stuff up here
 }
 
-struct DummyType { uint8_t data; };
+struct M {
+  int a;
+  float b;
+  uint8_t c;
+};
+
+struct U32 {
+  uint32_t value;
+};
 
 template<typename T>
 void test_ValueGetter_RAM()
 {
   ValueGetter<T> vg;
 
-  T expected = static_cast<T>(5.0 * pow(2, (sizeof(T) - 1) * 8));
+  const T expected = static_cast<T>(5.0 * pow(2, (sizeof(T) - 1) * 8));
 
   vg = ValueGetter<T>(&expected);
 
@@ -56,7 +64,7 @@ void test_ValueGetter_Array_RAM()
 {
   ValueGetter<T> vg;
 
-  T data[2] = {
+  const T data[2] = {
     static_cast<T>(1.0 * pow(2, (sizeof(T) - 1) * 8)),
     static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8))
   };
@@ -67,6 +75,21 @@ void test_ValueGetter_Array_RAM()
   T actual = vg[1];
 
   TEST_ASSERT_EQUAL(expected, actual);
+}
+
+void test_ValueGetter_Struct_RAM()
+{
+  const M expected = {
+    1, 2.75, 255
+  };
+
+  ValueGetter<M> mg = ValueGetter<M>(&expected);
+
+  M actual = mg;
+
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
 }
 
 template<typename T>
@@ -101,20 +124,23 @@ void test_ValueGetter_Array_PROGMEM()
   TEST_ASSERT_EQUAL(expected, actual);
 }
 
-void test_ValueGetter_PROGMEM_DummyType()
+void test_ValueGetter_Struct_PROGMEM()
 {
-  DummyType expected;
+  const M expected = {
+    1, 2.75, 255
+  };
 
-  ValueGetter<DummyType> vg;
+  static const PROGMEM M data = {
+    1, 2.75, 255
+  };
 
-  static const PROGMEM DummyType stored = { 20 };
+  ValueGetter<M> mg = ValueGetter<M>(&data, ValueLocation::ProgMem);
 
-  vg = ValueGetter<DummyType>(&stored, ValueLocation::ProgMem);
+  M actual = mg;
 
-  DummyType actual = vg;
-
-  TEST_ASSERT_EQUAL(expected.data, actual.data);
-  TEST_ASSERT_NOT_EQUAL(20, actual.data);
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
 }
 
 template<typename T>
@@ -132,27 +158,17 @@ void test_ValueGetter_EEPROM()
 #pragma GCC diagnostic pop
 }
 
-void test_ValueGetter_EEPROM_DummyType()
+void test_ValueGetter_Struct_EEPROM()
 {
-  DummyType expected;
+  ValueGetter<U32> vg = ValueGetter<U32>(reinterpret_cast<U32 *>(p_eeprom_test_data), ValueLocation::EEPROM);
 
-  ValueGetter<DummyType> vg;
+  U32 actual = vg;
 
-  vg = ValueGetter<DummyType>(reinterpret_cast<DummyType *>(p_eeprom_test_data), ValueLocation::EEPROM);
-
-  DummyType actual = vg;
-
-  TEST_ASSERT_EQUAL(expected.data, actual.data);
-  TEST_ASSERT_NOT_EQUAL(eeprom_test_expected_value, actual.data);
+  TEST_ASSERT_EQUAL(eeprom_test_expected_value, actual.value);
 }
+
 void test_load_RAM()
 {
-  struct M {
-    int a;
-    float b;
-    uint8_t c;
-  };
-
   M expected = {
     1, 2.75, 255
   };
@@ -175,13 +191,7 @@ void test_load_RAM()
 
 void test_load_PROGMEM()
 {
-  struct M {
-    int a;
-    float b;
-    uint8_t c;
-  };
-
-  M expected = {
+  const M expected = {
     1, 2.75, 255
   };
 
@@ -227,6 +237,8 @@ void setup() {
   RUN_TEST((test_ValueGetter_Array_RAM<int32_t>));
   RUN_TEST((test_ValueGetter_Array_RAM<float>));
 
+  RUN_TEST(test_ValueGetter_Struct_RAM);
+
   RUN_TEST((test_ValueGetter_PROGMEM<uint8_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<int8_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<uint16_t>));
@@ -234,7 +246,8 @@ void setup() {
   RUN_TEST((test_ValueGetter_PROGMEM<uint32_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<int32_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<float>));
-  RUN_TEST(test_ValueGetter_PROGMEM_DummyType);
+  
+  RUN_TEST(test_ValueGetter_Struct_PROGMEM);
 
   RUN_TEST((test_ValueGetter_Array_PROGMEM<uint8_t>));
   RUN_TEST((test_ValueGetter_Array_PROGMEM<int8_t>));
@@ -251,7 +264,8 @@ void setup() {
   RUN_TEST((test_ValueGetter_EEPROM<uint32_t>));
   RUN_TEST((test_ValueGetter_EEPROM<int32_t>));
   RUN_TEST((test_ValueGetter_EEPROM<float>));
-  RUN_TEST(test_ValueGetter_EEPROM_DummyType);
+  
+  RUN_TEST(test_ValueGetter_Struct_EEPROM);
 
   RUN_TEST(test_load_RAM);
   RUN_TEST(test_load_PROGMEM);

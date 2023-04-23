@@ -26,7 +26,11 @@
 template<typename T>
 T getFromProgMem(const T *_address)
 {
-    return T();
+    T value;
+
+    memcpy_P(&value, _address, sizeof(T));
+
+    return value;
 }
 
 template<>
@@ -54,7 +58,11 @@ float getFromProgMem(const float *_address);
 template<typename T>
 T getFromEeprom(const T *_address)
 {
-    return T();
+    T value;
+
+    eeprom_read_block(&value, _address, sizeof(T));
+
+    return value;
 }
 
 template<>
