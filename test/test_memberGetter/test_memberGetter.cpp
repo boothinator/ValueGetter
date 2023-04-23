@@ -43,13 +43,11 @@ void test_memberGetter()
     M2(const M * const address, const ValueLocation location)
       : _address{address}, _location{location} {}
 
-private:
     const M * _address;
     ValueLocation _location;
 
 public:
-    const OffsetGetter<int, M, offsetof(M, a)> a
-      = OffsetGetter<int, M, offsetof(M, a)>(&_address, &_location);
+    const OffsetGetter<int, M, offsetof(M, a), M2> a = OffsetGetter<int, M, offsetof(M, a), M2>(this);
   };
 
   M m = {

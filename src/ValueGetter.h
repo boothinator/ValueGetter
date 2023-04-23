@@ -125,19 +125,19 @@ private:
     ValueLocation _location;
 };
 
-template<typename OutputType, typename ClassType, size_t offset>
+template<typename OutputType, typename ClassType, size_t offset, typename ContainingType>
 class OffsetGetter
 {
 public:
-    OffsetGetter(const ClassType * const * const address, const ValueLocation * const location)
-        : _address{address}, _location{location}
-    {}
+    OffsetGetter(const ContainingType * const pCont) : _pCont{pCont} {}
 
     operator OutputType() const
     {
-        const OutputType * const p = reinterpret_cast<const OutputType * const>(*_address + offset);
+        const OutputType * const p = reinterpret_cast<const OutputType * const>(
+            _pCont->_address + offset
+        );
 
-        switch (*_location)
+        switch (_pCont->_location)
         {
             case ValueLocation::RAM:
                 return *p;
@@ -149,10 +149,8 @@ public:
                 return OutputType();
         }
     }
-
 private:
-    const ClassType * const * const _address;
-    const ValueLocation * const _location;
+    const ContainingType * const _pCont;
 };
 
 #endif
