@@ -90,7 +90,7 @@ public:
         : _address{address}, _location{location}
     {}
 
-    operator OutputType()
+    operator OutputType() const
     {
         switch (_location)
         {
@@ -105,7 +105,7 @@ public:
         }
     }
 
-    OutputType operator [](size_t index)
+    OutputType operator [](size_t index) const
     {
         switch (_location)
         {
