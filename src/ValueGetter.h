@@ -123,8 +123,10 @@ public:
     template <typename MemberType>
     void load(T &object, MemberType &member) const
     {
+        // Figure out offset of member within object
         size_t offset = reinterpret_cast<size_t>(&member) - reinterpret_cast<size_t>(&object);
 
+        // Don't try to load members that are outside of the object
         if (offset + sizeof(MemberType) > sizeof(T))
         {
             return;
