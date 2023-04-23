@@ -51,6 +51,34 @@ template<>
 float getFromProgMem(const float *_address);
 
 
+template<typename OutputType>
+OutputType getFromEeprom(const OutputType *_address)
+{
+    return OutputType();
+}
+
+template<>
+uint8_t getFromEeprom(const uint8_t *_address);
+
+template<>
+int8_t getFromEeprom(const int8_t *_address);
+
+template<>
+uint16_t getFromEeprom(const uint16_t *_address);
+
+template<>
+int16_t getFromEeprom(const int16_t *_address);
+
+template<>
+uint32_t getFromEeprom(const uint32_t *_address);
+
+template<>
+int32_t getFromEeprom(const int32_t *_address);
+
+template<>
+float getFromEeprom(const float *_address);
+
+
 enum class ValueLocation : uint8_t {Invalid, RAM, ProgMem, EEPROM};
 
 template<typename OutputType>
@@ -70,6 +98,8 @@ public:
                 return *_address;
             case ValueLocation::ProgMem:
                 return getFromProgMem(_address);
+            case ValueLocation::EEPROM:
+                return getFromEeprom(_address);
             default:
                 return OutputType();
         }

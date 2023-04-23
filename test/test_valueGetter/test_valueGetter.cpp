@@ -17,12 +17,18 @@
 #include <unity.h>
 
 #include "ValueGetter.h"
+#include "avr/eeprom.h"
 
 #define MAX_MESSAGE_LEN 255
 
 char message[MAX_MESSAGE_LEN];
 
+uint32_t *p_eeprom_test_data = reinterpret_cast<uint32_t *>(256);
+const uint32_t eeprom_test_expected_value = 0x12345678;
+
 void setUp(void) {
+  // Configure test value
+  eeprom_update_dword(p_eeprom_test_data, eeprom_test_expected_value);
 }
 
 void tearDown(void) {
@@ -75,6 +81,32 @@ void test_ValueGetter_PROGMEM_DummyType()
   TEST_ASSERT_NOT_EQUAL(20, actual.data);
 }
 
+template<typename T>
+void test_ValueGetter_EEPROM()
+{
+  ValueGetter<T> vg;
+
+  vg = ValueGetter<T>(reinterpret_cast<T *>(p_eeprom_test_data), ValueLocation::EEPROM);
+
+  T actual = vg;
+
+  TEST_ASSERT_EQUAL(reinterpret_cast<const T&>(eeprom_test_expected_value), actual);
+}
+
+void test_ValueGetter_EEPROM_DummyType()
+{
+  DummyType expected;
+
+  ValueGetter<DummyType> vg;
+
+  vg = ValueGetter<DummyType>(reinterpret_cast<DummyType *>(p_eeprom_test_data), ValueLocation::EEPROM);
+
+  DummyType actual = vg;
+
+  TEST_ASSERT_EQUAL(expected.data, actual.data);
+  TEST_ASSERT_NOT_EQUAL(eeprom_test_expected_value, actual.data);
+}
+
 void setup() {
   // NOTE!!! Wait for >2 secs
   // if board doesn't support software reset via Serial.DTR/RTS
@@ -98,6 +130,15 @@ void setup() {
   RUN_TEST((test_ValueGetter_PROGMEM<int32_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<float>));
   RUN_TEST(test_ValueGetter_PROGMEM_DummyType);
+
+  RUN_TEST((test_ValueGetter_EEPROM<uint8_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<int8_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<uint16_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<int16_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<uint32_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<int32_t>));
+  RUN_TEST((test_ValueGetter_EEPROM<float>));
+  RUN_TEST(test_ValueGetter_EEPROM_DummyType);
 
   UNITY_END(); // stop unit testing
 }

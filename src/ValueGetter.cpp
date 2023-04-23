@@ -25,7 +25,7 @@ uint8_t getFromProgMem(const uint8_t *_address)
 template<>
 int8_t getFromProgMem(const int8_t *_address)
 {
-    uint8_t val = pgm_read_byte(_address);
+    uint8_t val = pgm_read_byte(reinterpret_cast<const uint8_t *>(_address));
     return reinterpret_cast<int8_t &>(val);
 }
 
@@ -38,7 +38,7 @@ uint16_t getFromProgMem(const uint16_t *_address)
 template<>
 int16_t getFromProgMem(const int16_t *_address)
 {
-    uint16_t val = pgm_read_word(_address);
+    uint16_t val = pgm_read_word(reinterpret_cast<const uint16_t *>(_address));
     return reinterpret_cast<int16_t &>(val);
 }
 
@@ -51,7 +51,7 @@ uint32_t getFromProgMem(const uint32_t *_address)
 template<>
 int32_t getFromProgMem(const int32_t *_address)
 {
-    uint32_t val = pgm_read_dword(_address);
+    uint32_t val = pgm_read_dword(reinterpret_cast<const uint32_t *>(_address));
     return reinterpret_cast<int32_t &>(val);
 }
 
@@ -59,4 +59,50 @@ template<>
 float getFromProgMem(const float *_address)
 {
     return pgm_read_float(_address);
+}
+
+
+template<>
+uint8_t getFromEeprom(const uint8_t *_address)
+{
+    return eeprom_read_byte(_address);
+}
+
+template<>
+int8_t getFromEeprom(const int8_t *_address)
+{
+    uint8_t val = eeprom_read_byte(reinterpret_cast<const uint8_t *>(_address));
+    return reinterpret_cast<int8_t &>(val);
+}
+
+template<>
+uint16_t getFromEeprom(const uint16_t *_address)
+{
+    return eeprom_read_word(_address);
+}
+
+template<>
+int16_t getFromEeprom(const int16_t *_address)
+{
+    uint16_t val = eeprom_read_word(reinterpret_cast<const uint16_t *>(_address));
+    return reinterpret_cast<int16_t &>(val);
+}
+
+template<>
+uint32_t getFromEeprom(const uint32_t *_address)
+{
+    return eeprom_read_dword(_address);
+}
+
+template<>
+int32_t getFromEeprom(const int32_t *_address)
+{
+    uint32_t val = eeprom_read_dword(reinterpret_cast<const uint32_t *>(_address));
+    return reinterpret_cast<int32_t &>(val);
+}
+
+template<>
+float getFromEeprom(const float *_address)
+{
+    return eeprom_read_float(_address);
 }
