@@ -105,6 +105,21 @@ public:
         }
     }
 
+    OutputType operator [](size_t index)
+    {
+        switch (_location)
+        {
+            case ValueLocation::RAM:
+                return _address[index];
+            case ValueLocation::ProgMem:
+                return getFromProgMem(&_address[index]);
+            case ValueLocation::EEPROM:
+                return getFromEeprom(&_address[index]);
+            default:
+                return OutputType();
+        }
+    }
+
 private:
     const OutputType *_address;
     ValueLocation _location;

@@ -52,6 +52,24 @@ void test_ValueGetter_RAM()
 }
 
 template<typename T>
+void test_ValueGetter_Array_RAM()
+{
+  ValueGetter<T> vg;
+
+  T data[2] = {
+    static_cast<T>(1.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8))
+  };
+
+  vg = ValueGetter<T>(data);
+
+  T expected = data[1];
+  T actual = vg[1];
+
+  TEST_ASSERT_EQUAL(expected, actual);
+}
+
+template<typename T>
 void test_ValueGetter_PROGMEM()
 {
   ValueGetter<T> vg;
@@ -61,6 +79,24 @@ void test_ValueGetter_PROGMEM()
   vg = ValueGetter<T>(&expected, ValueLocation::ProgMem);
 
   T actual = vg;
+
+  TEST_ASSERT_EQUAL(expected, actual);
+}
+
+template<typename T>
+void test_ValueGetter_Array_PROGMEM()
+{
+  ValueGetter<T> vg;
+
+  static const PROGMEM T data[2] = {
+    static_cast<T>(1.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8))
+  };
+
+  vg = ValueGetter<T>(data, ValueLocation::ProgMem);
+
+  T expected = static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8));
+  T actual = vg[1];
 
   TEST_ASSERT_EQUAL(expected, actual);
 }
@@ -122,6 +158,14 @@ void setup() {
   RUN_TEST((test_ValueGetter_RAM<int32_t>));
   RUN_TEST((test_ValueGetter_RAM<float>));
 
+  RUN_TEST((test_ValueGetter_Array_RAM<uint8_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<int8_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<uint16_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<int16_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<uint32_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<int32_t>));
+  RUN_TEST((test_ValueGetter_Array_RAM<float>));
+
   RUN_TEST((test_ValueGetter_PROGMEM<uint8_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<int8_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<uint16_t>));
@@ -130,6 +174,14 @@ void setup() {
   RUN_TEST((test_ValueGetter_PROGMEM<int32_t>));
   RUN_TEST((test_ValueGetter_PROGMEM<float>));
   RUN_TEST(test_ValueGetter_PROGMEM_DummyType);
+
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<uint8_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<int8_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<uint16_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<int16_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<uint32_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<int32_t>));
+  RUN_TEST((test_ValueGetter_Array_PROGMEM<float>));
 
   RUN_TEST((test_ValueGetter_EEPROM<uint8_t>));
   RUN_TEST((test_ValueGetter_EEPROM<int8_t>));
