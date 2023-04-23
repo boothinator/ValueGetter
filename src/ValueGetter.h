@@ -125,4 +125,34 @@ private:
     ValueLocation _location;
 };
 
+template<typename OutputType, typename ClassType, size_t offset>
+class OffsetGetter
+{
+public:
+    OffsetGetter(const ClassType * const * const address, const ValueLocation * const location)
+        : _address{address}, _location{location}
+    {}
+
+    operator OutputType() const
+    {
+        const OutputType * const p = reinterpret_cast<const OutputType * const>(*_address + offset);
+
+        switch (*_location)
+        {
+            case ValueLocation::RAM:
+                return *p;
+            case ValueLocation::ProgMem:
+                return getFromProgMem(p);
+            case ValueLocation::EEPROM:
+                return getFromEeprom(p);
+            default:
+                return OutputType();
+        }
+    }
+
+private:
+    const ClassType * const * const _address;
+    const ValueLocation * const _location;
+};
+
 #endif

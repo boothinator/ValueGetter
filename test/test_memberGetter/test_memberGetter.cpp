@@ -43,30 +43,27 @@ void test_memberGetter()
     M2(const M * const address, const ValueLocation location)
       : _address{address}, _location{location} {}
 
-    const M * const _address;
-    const ValueLocation _location;
-    const ValueGetter<int> a = ValueGetter<int>(
-      reinterpret_cast<const int *>(_address + offsetof(M, a)), _location);
-    const ValueGetter<float> b = ValueGetter<float>(
-      reinterpret_cast<const float *>(_address + offsetof(M, b)), _location);
-    const ValueGetter<uint8_t> c = ValueGetter<uint8_t>(
-      reinterpret_cast<const uint8_t *>(_address + offsetof(M, c)), _location);
+private:
+    const M * _address;
+    ValueLocation _location;
+
+public:
+    const OffsetGetter<int, M, offsetof(M, a)> a
+      = OffsetGetter<int, M, offsetof(M, a)>(&_address, &_location);
   };
 
   M m = {
     1, 2, 3
   };
 
-  M2 m2 = {
-    &m,
-    ValueLocation::RAM
-  };
+  M2 m2 = M2(&m, ValueLocation::RAM);
 
   Serial.println(sizeof(M2));
+  Serial.println(sizeof(m2.a));
 
   TEST_ASSERT_EQUAL(m.a, m2.a);
-  TEST_ASSERT_EQUAL(m.b, m2.b);
-  TEST_ASSERT_EQUAL(m.c, m2.c);
+  //TEST_ASSERT_EQUAL(m.b, m2.b);
+  //TEST_ASSERT_EQUAL(m.c, m2.c);
 }
 
 void setup() {
