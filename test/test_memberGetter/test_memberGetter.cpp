@@ -40,9 +40,17 @@ void test_memberGetter()
   };
 
   struct M2 {
-    const ValueGetter<int> a;
-    const ValueGetter<float> b;
-    const ValueGetter<uint8_t> c;
+    M2(const M * const address, const ValueLocation location)
+      : _address{address}, _location{location} {}
+
+    const M * const _address;
+    const ValueLocation _location;
+    const ValueGetter<int> a = ValueGetter<int>(
+      reinterpret_cast<const int *>(_address + offsetof(M, a)), _location);
+    const ValueGetter<float> b = ValueGetter<float>(
+      reinterpret_cast<const float *>(_address + offsetof(M, b)), _location);
+    const ValueGetter<uint8_t> c = ValueGetter<uint8_t>(
+      reinterpret_cast<const uint8_t *>(_address + offsetof(M, c)), _location);
   };
 
   M m = {
@@ -50,9 +58,8 @@ void test_memberGetter()
   };
 
   M2 m2 = {
-    ValueGetter<int>(&m.a),
-    ValueGetter<float>(&m.b),
-    ValueGetter<uint8_t>(&m.c),
+    &m,
+    ValueLocation::RAM
   };
 
   Serial.println(sizeof(M2));
