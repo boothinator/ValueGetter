@@ -31,7 +31,7 @@ void tearDown(void) {
 }
 
 
-void test_memberGetter()
+void test_memberGetter_RAM()
 {
   struct M {
     int a;
@@ -39,29 +39,55 @@ void test_memberGetter()
     uint8_t c;
   };
 
-  struct M2 {
-    M2(const M * const address, const ValueLocation location)
-      : _address{address}, _location{location} {}
-
-    const M * _address;
-    ValueLocation _location;
-
-public:
-    const OffsetGetter<int, M, offsetof(M, a), M2> a = OffsetGetter<int, M, offsetof(M, a), M2>(this);
+  M expected = {
+    1, 2.75, 255
   };
 
-  M m = {
-    1, 2, 3
+  M actual = {
+    0, 0, 0
   };
 
-  M2 m2 = M2(&m, ValueLocation::RAM);
+  MemberGetter<M> mg = MemberGetter<M>(&expected);
 
-  Serial.println(sizeof(M2));
-  Serial.println(sizeof(m2.a));
+  mg.load(actual, actual.a);
+  mg.load(actual, actual.b);
+  mg.load(actual, actual.c);
 
-  TEST_ASSERT_EQUAL(m.a, m2.a);
-  //TEST_ASSERT_EQUAL(m.b, m2.b);
-  //TEST_ASSERT_EQUAL(m.c, m2.c);
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
+}
+
+
+void test_memberGetter_PROGMEM()
+{
+  struct M {
+    int a;
+    float b;
+    uint8_t c;
+  };
+
+  M expected = {
+    1, 2.75, 255
+  };
+
+  static const PROGMEM M m = {
+    1, 2.75, 255
+  };
+
+  M actual = {
+    0, 0, 0
+  };
+
+  MemberGetter<M> mg = MemberGetter<M>(&m, ValueLocation::ProgMem);
+
+  mg.load(actual, actual.a);
+  mg.load(actual, actual.b);
+  mg.load(actual, actual.c);
+
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
 }
 
 void setup() {
@@ -71,7 +97,8 @@ void setup() {
 
   UNITY_BEGIN();    // IMPORTANT LINE!
 
-  RUN_TEST(test_memberGetter);
+  RUN_TEST(test_memberGetter_RAM);
+  RUN_TEST(test_memberGetter_PROGMEM);
 
   UNITY_END(); // stop unit testing
 }

@@ -125,32 +125,48 @@ private:
     ValueLocation _location;
 };
 
-template<typename OutputType, typename ClassType, size_t offset, typename ContainingType>
-class OffsetGetter
+template<typename ClassType>
+class MemberGetter
 {
 public:
-    OffsetGetter(const ContainingType * const pCont) : _pCont{pCont} {}
+    MemberGetter(const ClassType *address, ValueLocation location = ValueLocation::RAM)
+        : _address{address}, _location{location}
+    {}
 
-    operator OutputType() const
+    template <typename MemberType>
+    void load(ClassType &object, MemberType &member = object) const
     {
-        const OutputType * const p = reinterpret_cast<const OutputType * const>(
-            _pCont->_address + offset
+        size_t offset = reinterpret_cast<size_t>(&member) - reinterpret_cast<size_t>(&object);
+
+        if (offset + sizeof(MemberType) > sizeof(ClassType))
+        {
+            return;
+        }
+
+        const MemberType * p = reinterpret_cast<const MemberType *>(
+            reinterpret_cast<const uint8_t *>(_address) + offset
         );
 
-        switch (_pCont->_location)
+        switch (_location)
         {
             case ValueLocation::RAM:
-                return *p;
+                member =  *p;
+                break;
             case ValueLocation::ProgMem:
-                return getFromProgMem(p);
+                member = getFromProgMem(p);
+                break;
             case ValueLocation::EEPROM:
-                return getFromEeprom(p);
+                member = getFromEeprom(p);
+                break;
             default:
-                return OutputType();
+                break;
         }
     }
+
 private:
-    const ContainingType * const _pCont;
+    const ClassType *_address;
+    ValueLocation _location;
 };
+
 
 #endif
