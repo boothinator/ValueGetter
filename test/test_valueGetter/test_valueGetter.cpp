@@ -126,7 +126,10 @@ void test_ValueGetter_EEPROM()
 
   T actual = vg;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
   TEST_ASSERT_EQUAL(reinterpret_cast<const T&>(eeprom_test_expected_value), actual);
+#pragma GCC diagnostic pop
 }
 
 void test_ValueGetter_EEPROM_DummyType()
