@@ -145,6 +145,64 @@ void test_ValueGetter_EEPROM_DummyType()
   TEST_ASSERT_EQUAL(expected.data, actual.data);
   TEST_ASSERT_NOT_EQUAL(eeprom_test_expected_value, actual.data);
 }
+void test_load_RAM()
+{
+  struct M {
+    int a;
+    float b;
+    uint8_t c;
+  };
+
+  M expected = {
+    1, 2.75, 255
+  };
+
+  M actual = {
+    0, 0, 0
+  };
+
+  ValueGetter<M> mg = ValueGetter<M>(&expected);
+
+  mg.load(actual, actual.a);
+  mg.load(actual, actual.b);
+  mg.load(actual, actual.c);
+
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
+}
+
+
+void test_load_PROGMEM()
+{
+  struct M {
+    int a;
+    float b;
+    uint8_t c;
+  };
+
+  M expected = {
+    1, 2.75, 255
+  };
+
+  static const PROGMEM M m = {
+    1, 2.75, 255
+  };
+
+  M actual = {
+    0, 0, 0
+  };
+
+  ValueGetter<M> mg = ValueGetter<M>(&m, ValueLocation::ProgMem);
+
+  mg.load(actual, actual.a);
+  mg.load(actual, actual.b);
+  mg.load(actual, actual.c);
+
+  TEST_ASSERT_EQUAL(expected.a, actual.a);
+  TEST_ASSERT_EQUAL(expected.b, actual.b);
+  TEST_ASSERT_EQUAL(expected.c, actual.c);
+}
 
 void setup() {
   // NOTE!!! Wait for >2 secs
@@ -194,6 +252,9 @@ void setup() {
   RUN_TEST((test_ValueGetter_EEPROM<int32_t>));
   RUN_TEST((test_ValueGetter_EEPROM<float>));
   RUN_TEST(test_ValueGetter_EEPROM_DummyType);
+
+  RUN_TEST(test_load_RAM);
+  RUN_TEST(test_load_PROGMEM);
 
   UNITY_END(); // stop unit testing
 }

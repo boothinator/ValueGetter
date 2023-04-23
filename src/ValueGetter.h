@@ -23,10 +23,10 @@
 #include <avr/pgmspace.h>
 
 
-template<typename OutputType>
-OutputType getFromProgMem(const OutputType *_address)
+template<typename T>
+T getFromProgMem(const T *_address)
 {
-    return OutputType();
+    return T();
 }
 
 template<>
@@ -51,10 +51,10 @@ template<>
 float getFromProgMem(const float *_address);
 
 
-template<typename OutputType>
-OutputType getFromEeprom(const OutputType *_address)
+template<typename T>
+T getFromEeprom(const T *_address)
 {
-    return OutputType();
+    return T();
 }
 
 template<>
@@ -81,16 +81,16 @@ float getFromEeprom(const float *_address);
 
 enum class ValueLocation : uint8_t {Invalid, RAM, ProgMem, EEPROM};
 
-template<typename OutputType>
+template<typename T>
 class ValueGetter
 {
 public:
     ValueGetter() : _address{0}, _location{ValueLocation::Invalid} {}
-    ValueGetter(const OutputType *address, ValueLocation location = ValueLocation::RAM)
+    ValueGetter(const T *address, ValueLocation location = ValueLocation::RAM)
         : _address{address}, _location{location}
     {}
 
-    operator OutputType() const
+    operator T() const
     {
         switch (_location)
         {
@@ -101,11 +101,11 @@ public:
             case ValueLocation::EEPROM:
                 return getFromEeprom(_address);
             default:
-                return OutputType();
+                return T();
         }
     }
 
-    OutputType operator [](size_t index) const
+    T operator [](size_t index) const
     {
         switch (_location)
         {
@@ -116,29 +116,16 @@ public:
             case ValueLocation::EEPROM:
                 return getFromEeprom(&_address[index]);
             default:
-                return OutputType();
+                return T();
         }
     }
 
-private:
-    const OutputType *_address;
-    ValueLocation _location;
-};
-
-template<typename ClassType>
-class MemberGetter
-{
-public:
-    MemberGetter(const ClassType *address, ValueLocation location = ValueLocation::RAM)
-        : _address{address}, _location{location}
-    {}
-
     template <typename MemberType>
-    void load(ClassType &object, MemberType &member = object) const
+    void load(T &object, MemberType &member) const
     {
         size_t offset = reinterpret_cast<size_t>(&member) - reinterpret_cast<size_t>(&object);
 
-        if (offset + sizeof(MemberType) > sizeof(ClassType))
+        if (offset + sizeof(MemberType) > sizeof(T))
         {
             return;
         }
@@ -164,7 +151,7 @@ public:
     }
 
 private:
-    const ClassType *_address;
+    const T *_address;
     ValueLocation _location;
 };
 
