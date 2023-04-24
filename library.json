@@ -1,0 +1,22 @@
+{
+  "name": "ValueGetter",
+  "version": "0.0.1",
+  "description": "Use the same object for reading values from RAM, program memory (PROGMEM), or EEPROM.",
+  "keywords": "PROGMEM, EEPROM",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/boothinator/ValueGetter.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Joshua Booth",
+      "email": "boothin8or@gmail.com"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/boothinator/ValueGetter",
+  "frameworks": "*",
+  "platforms": "*",
+}
