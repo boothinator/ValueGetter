@@ -64,17 +64,26 @@ void test_ValueGetter_Array_RAM()
 {
   ValueGetter<T> vg;
 
-  const T data[2] = {
+  static const T data[] = {
     static_cast<T>(1.0 * pow(2, (sizeof(T) - 1) * 8)),
-    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8))
+    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(3.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(4.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(5.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(6.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(7.0 * pow(2, (sizeof(T) - 1) * 8))
   };
 
-  vg = ValueGetter<T>(data);
+  size_t length = sizeof(data) / sizeof(data[0]);
 
-  T expected = data[1];
-  T actual = vg[1];
+  vg = ValueGetter<T>(data, ValueLocation::RAM);
 
-  TEST_ASSERT_EQUAL(expected, actual);
+  for (size_t i = 0; i < length; i++)
+  {
+    T expected = static_cast<T>((float)(i + 1) * pow(2, (sizeof(T) - 1) * 8));
+    T actual = vg[i];
+    TEST_ASSERT_EQUAL(expected, actual);
+  }
 }
 
 void test_ValueGetter_Struct_RAM()
@@ -111,17 +120,26 @@ void test_ValueGetter_Array_PROGMEM()
 {
   ValueGetter<T> vg;
 
-  static const PROGMEM T data[2] = {
+  static const PROGMEM T data[] = {
     static_cast<T>(1.0 * pow(2, (sizeof(T) - 1) * 8)),
-    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8))
+    static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(3.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(4.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(5.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(6.0 * pow(2, (sizeof(T) - 1) * 8)),
+    static_cast<T>(7.0 * pow(2, (sizeof(T) - 1) * 8))
   };
+
+  size_t length = sizeof(data) / sizeof(data[0]);
 
   vg = ValueGetter<T>(data, ValueLocation::ProgMem);
 
-  T expected = static_cast<T>(2.0 * pow(2, (sizeof(T) - 1) * 8));
-  T actual = vg[1];
-
-  TEST_ASSERT_EQUAL(expected, actual);
+  for (size_t i = 0; i < length; i++)
+  {
+    T expected = static_cast<T>((float)(i + 1) * pow(2, (sizeof(T) - 1) * 8));
+    T actual = vg[i];
+    TEST_ASSERT_EQUAL(expected, actual);
+  }
 }
 
 void test_ValueGetter_Struct_PROGMEM()
